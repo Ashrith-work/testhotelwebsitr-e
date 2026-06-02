@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-charcoal font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif text-charcoal;
+  }
+}
+
+@layer components {
+  /* Centered page container */
+  .container-x {
+    @apply mx-auto w-full max-w-container px-5 sm:px-6 lg:px-8;
+  }
+
+  /* Section heading with the signature maroon underline accent */
+  .section-title {
+    @apply relative font-serif text-3xl sm:text-4xl text-charcoal;
+  }
+  .section-title::after {
+    content: "";
+    @apply mt-3 block h-[3px] w-16 rounded bg-maroon;
+  }
+  .section-title-center {
+    @apply section-title text-center;
+  }
+  .section-title-center::after {
+    @apply mx-auto;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-all duration-200;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-white hover:bg-gold-dark hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  .btn-forest {
+    @apply btn bg-forest text-white hover:bg-forest-dark hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  .btn-maroon {
+    @apply btn bg-maroon text-white hover:bg-maroon-dark hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  .btn-outline {
+    @apply btn border border-charcoal/30 text-charcoal hover:border-maroon hover:text-maroon;
+  }
+
+  .input-field {
+    @apply w-full rounded-sm border border-charcoal/20 bg-white px-4 py-3 text-sm text-charcoal outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/20;
+  }
+  .input-label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-light;
+  }
+}
