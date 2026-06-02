@@ -1,0 +1,26 @@
+# Render blueprint for the Neelakurunji website (Next.js Node web service).
+# In the Render dashboard: New + → Blueprint → connect this GitHub repo.
+# Render reads this file, provisions the service, and prompts for the two
+# HotelTrack env vars (sync: false = you fill them in the dashboard).
+#
+# NOTE: NEXT_PUBLIC_* vars are inlined into the bundle at BUILD time, so they
+# must be set in Render before the build runs (they will be, once entered).
+services:
+  - type: web
+    name: neelakurunji
+    runtime: node
+    plan: free
+    region: singapore # closest region to Kerala; change if you prefer another
+    branch: main
+    buildCommand: npm ci && npm run build
+    # next start honours the PORT env var that Render injects.
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.1
+      - key: NEXT_PUBLIC_HOTELTRACK_APP_URL
+        sync: false
+      - key: NEXT_PUBLIC_HOTELTRACK_SITE_ID
+        sync: false
