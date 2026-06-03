@@ -1,0 +1,46 @@
+// Prisma schema for Neelakurunji bookings.
+//
+// Uses SQLite for immediate local development. To run on Render (or any
+// production host with a persistent DB), change `provider` to "postgresql"
+// and set DATABASE_URL to your Postgres connection string, then re-run
+// `npx prisma migrate deploy`. SQLite on Render's free tier is ephemeral —
+// bookings would be lost on restart/redeploy — so use Postgres in production.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id               String    @id @default(cuid())
+  bookingReference String    @unique // format: NLK-YYYYMMDD-XXXXX
+
+  // Guest + stay details (captured on /book)
+  fullName         String
+  email            String
+  phone            String
+  checkInDate      DateTime
+  checkOutDate     DateTime
+  numberOfAdults   Int
+  numberOfChildren Int       @default(0)
+  roomType         String
+  specialRequests  String?
+
+  // Money — stored in PAISE (100 paise = 1 INR) to avoid float rounding.
+  totalAmount      Int
+
+  // pending_payment | confirmed | failed | cancelled
+  status           String    @default("pending_payment")
+  // upi_static | upi_razorpay
+  paymentMethod    String
+
+  // Populated only for the Razorpay flow (Approach B)
+  razorpayPaymentId String?
+  razorpayOrderId   String?
+
+  paidAt           DateTime?
+  createdAt        DateTime  @default(now())
+}
