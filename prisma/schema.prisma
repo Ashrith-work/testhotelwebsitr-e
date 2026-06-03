@@ -1,17 +1,19 @@
 // Prisma schema for Neelakurunji bookings.
 //
-// Uses SQLite for immediate local development. To run on Render (or any
-// production host with a persistent DB), change `provider` to "postgresql"
-// and set DATABASE_URL to your Postgres connection string, then re-run
-// `npx prisma migrate deploy`. SQLite on Render's free tier is ephemeral —
-// bookings would be lost on restart/redeploy — so use Postgres in production.
+// Uses PostgreSQL (Vercel Postgres / Neon). Serverless hosts like Vercel have
+// an ephemeral, read-only filesystem, so SQLite can't be used there — a hosted
+// Postgres is required.
+//   DATABASE_URL          -> pooled connection (runtime queries)
+//   DATABASE_URL_UNPOOLED -> direct connection (migrations / Prisma CLI)
+// The Vercel Postgres (Neon) integration injects both of these automatically.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // A bookable room/suite/villa. Source of truth for pricing and capacity —

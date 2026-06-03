@@ -5,9 +5,10 @@
   "description": "Neelakurunji Luxury Plantation Bungalow — official website (also the HotelTrack tracking-snippet test environment)",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "db:seed": "node prisma/seed.mjs"
   },
   "prisma": {
