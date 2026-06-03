@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import RoomCard from "@/components/RoomCard";
-import { rooms } from "@/data/rooms";
+import { getActiveRooms } from "@/lib/rooms";
+import { formatINR } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "Accommodation",
@@ -10,7 +11,16 @@ export const metadata: Metadata = {
     "Explore the rooms, suites and villas at Neelakurunji Luxury Plantation Bungalow, Munnar — with tariffs and online booking.",
 };
 
-export default function RoomsPage() {
+export const dynamic = "force-dynamic";
+
+function capacityLabel(r: { maxAdults: number; maxChildren: number }): string {
+  const adults = `${r.maxAdults} Adult${r.maxAdults > 1 ? "s" : ""}`;
+  if (!r.maxChildren) return adults;
+  return `${adults} + ${r.maxChildren} Child${r.maxChildren > 1 ? "ren" : ""}`;
+}
+
+export default async function RoomsPage() {
+  const rooms = await getActiveRooms();
   return (
     <>
       <PageHeader
@@ -22,7 +32,7 @@ export default function RoomsPage() {
         <h2 className="section-title-center">Our Rooms</h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {rooms.map((room) => (
-            <RoomCard key={room.slug} room={room} />
+            <RoomCard key={room.id} room={room} />
           ))}
         </div>
       </section>
@@ -50,9 +60,9 @@ export default function RoomsPage() {
                 {rooms.map((r, i) => (
                   <tr key={r.slug} className={i % 2 ? "bg-cream/40" : "bg-white"}>
                     <td className="px-5 py-4 font-medium text-charcoal">{r.name}</td>
-                    <td className="px-5 py-4 text-charcoal-light">{r.capacity}</td>
+                    <td className="px-5 py-4 text-charcoal-light">{capacityLabel(r)}</td>
                     <td className="px-5 py-4 text-right font-semibold text-maroon">
-                      ₹{r.price.toLocaleString("en-IN")}
+                      {formatINR(r.basePrice)}
                     </td>
                     <td className="px-5 py-4 text-right">
                       <Link

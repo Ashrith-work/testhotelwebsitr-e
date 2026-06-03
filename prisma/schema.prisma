@@ -14,9 +14,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// A bookable room/suite/villa. Source of truth for pricing and capacity —
+// the marketing pages and the /book flow both read from this table.
+model Room {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String
+  basePrice   Int // PAISE per night (100 paise = 1 INR)
+  maxAdults   Int
+  maxChildren Int
+  imageUrl    String
+  // SQLite cannot store scalar lists (String[]), so amenities is a JSON
+  // array of strings. On a future Postgres switch this can become String[].
+  amenities   Json
+  isActive    Boolean   @default(true)
+  sortOrder   Int
+  createdAt   DateTime  @default(now())
+  bookings    Booking[]
+}
+
+// Optional extras a guest can add at the review step.
+model AddOn {
+  id          String   @id @default(cuid())
+  name        String // e.g. "Ayurvedic Spa Package"
+  description String
+  price       Int // PAISE — unit price
+  pricingType String // "per_person" | "per_booking"
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
 model Booking {
   id               String    @id @default(cuid())
   bookingReference String    @unique // format: NLK-YYYYMMDD-XXXXX
+
+  // Room (FK) + a readable snapshot of the room name at booking time.
+  roomId           String
+  room             Room      @relation(fields: [roomId], references: [id])
+  roomType         String
 
   // Guest + stay details (captured on /book)
   fullName         String
@@ -24,18 +61,26 @@ model Booking {
   phone            String
   checkInDate      DateTime
   checkOutDate     DateTime
+  numberOfNights   Int
   numberOfAdults   Int
   numberOfChildren Int       @default(0)
-  roomType         String
   specialRequests  String?
 
   // Money — stored in PAISE (100 paise = 1 INR) to avoid float rounding.
-  totalAmount      Int
+  // All snapshotted at booking time so historical records stay correct even
+  // if room prices change later.
+  nightlyRate      Int // snapshot of room.basePrice
+  // JSON array of { addOnId, name, quantity, price } (price = unit price, paise)
+  addOns           Json
+  subtotal         Int // roomTotal + addOnTotal
+  gstRate          Int // whole percent applied: 12 or 18
+  gstAmount        Int // round(subtotal * gstRate / 100)
+  totalAmount      Int // subtotal + gstAmount
 
   // pending_payment | confirmed | failed | cancelled
   status           String    @default("pending_payment")
   // upi_static | upi_razorpay
-  paymentMethod    String
+  paymentMethod    String    @default("upi_static")
 
   // Populated only for the Razorpay flow (Approach B)
   razorpayPaymentId String?

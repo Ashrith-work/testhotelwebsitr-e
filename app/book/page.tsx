@@ -1,49 +1,40 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import BookingForm from "@/components/BookingForm";
+import BookingWizard from "@/components/booking/BookingWizard";
+import { getActiveAddOns, getActiveRooms } from "@/lib/rooms";
 
 export const metadata: Metadata = {
   title: "Book Online",
   description:
-    "Reserve your stay at Neelakurunji Luxury Plantation Bungalow, Munnar — check availability and book online.",
+    "Reserve your stay at Neelakurunji Luxury Plantation Bungalow, Munnar — choose a room, pick your dates, add extras and pay securely online.",
 };
 
-// Server component: reads the optional ?room= query param to preselect a room,
-// then hands it to the client BookingForm.
-export default function BookPage({
+// Reads rooms + add-ons from the DB at request time, so this page is dynamic.
+export const dynamic = "force-dynamic";
+
+export default async function BookPage({
   searchParams,
 }: {
   searchParams: { room?: string };
 }) {
+  const [rooms, addOns] = await Promise.all([
+    getActiveRooms(),
+    getActiveAddOns(),
+  ]);
+
   return (
     <>
       <PageHeader
         title="Book Online"
-        subtitle="Reserve your plantation retreat — we'll confirm the details with you"
+        subtitle="Choose a room, pick your dates, and confirm your plantation retreat"
       />
 
-      <section className="container-x py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-sm bg-white p-8 shadow-sm ring-1 ring-charcoal/5 sm:p-10">
-            <h2 className="section-title">Booking Request</h2>
-            <p className="mt-4 text-sm text-charcoal-light">
-              Fill in your details below. On submit you&apos;ll be taken to a
-              confirmation page.
-            </p>
-            <div className="mt-8">
-              <BookingForm mode="redirect" defaultRoom={searchParams.room} />
-            </div>
-          </div>
-
-          <p className="mt-6 text-center text-xs text-charcoal-light">
-            Prefer same-page confirmation? Try the{" "}
-            <Link href="/book-alt" className="font-semibold text-maroon hover:underline">
-              alternate booking form
-            </Link>
-            .
-          </p>
-        </div>
+      <section className="container-x py-16">
+        <BookingWizard
+          rooms={rooms}
+          addOns={addOns}
+          preselectSlug={searchParams.room}
+        />
       </section>
     </>
   );

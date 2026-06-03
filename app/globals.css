@@ -65,3 +65,16 @@
     @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-light;
   }
 }
+
+/* Invoice print: drop the site chrome and show only the invoice content. */
+@media print {
+  body {
+    background: #fff;
+  }
+  body > *:not(main) {
+    display: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -13,6 +13,11 @@ export const site = {
     facebook: "https://facebook.com", // PLACEHOLDER — replace with real page
     youtube: "https://youtube.com", // PLACEHOLDER — replace with real channel
   },
+  // UPI payee details used to build the static payment QR on /book.
+  payment: {
+    upiVpa: "aare3revanth4@okhdfcbank",
+    payeeName: "Neelakurunji Luxury Plantation Bungalow",
+  },
 };
 
 export const navItems = [

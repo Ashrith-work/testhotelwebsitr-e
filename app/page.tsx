@@ -3,10 +3,13 @@ import CTACards from "@/components/CTACards";
 import RoomCard from "@/components/RoomCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import { site } from "@/data/site";
-import { rooms } from "@/data/rooms";
+import { getActiveRooms } from "@/lib/rooms";
 import { testimonials } from "@/data/testimonials";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const rooms = await getActiveRooms();
   return (
     <>
       {/* ---------------------------------------------------------------- */}
@@ -93,7 +96,7 @@ export default function HomePage() {
           </div>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {rooms.map((room) => (
-              <RoomCard key={room.slug} room={room} />
+              <RoomCard key={room.id} room={room} />
             ))}
           </div>
         </div>
