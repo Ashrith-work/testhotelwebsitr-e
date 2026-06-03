@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { site } from "@/data/site";
+import { auth } from "@/auth";
 import {
   buildAddOnLines,
   buildQuote,
@@ -147,9 +148,14 @@ export async function POST(request: Request) {
 
   const bookingReference = generateBookingReference(checkInDate);
 
+  // Link the booking to the signed-in user (if any); guests book with null.
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+
   const booking = await prisma.booking.create({
     data: {
       bookingReference,
+      userId,
       roomId: room.id,
       roomType: room.name,
       fullName: fullName.trim(),

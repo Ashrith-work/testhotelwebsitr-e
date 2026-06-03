@@ -11,8 +11,9 @@ import {
   MenuIcon,
   CloseIcon,
 } from "@/components/icons";
+import AccountMenu, { type NavUser } from "@/components/auth/AccountMenu";
 
-export default function Navbar() {
+export default function Navbar({ user }: { user: NavUser | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -81,7 +82,7 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Right side: search + mobile toggle */}
+        {/* Right side: search + account + mobile toggle */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -91,6 +92,7 @@ export default function Navbar() {
           >
             <SearchIcon className="h-5 w-5" />
           </button>
+          <AccountMenu user={user} />
           <button
             type="button"
             aria-label="Toggle menu"
@@ -139,6 +141,23 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
+            <li>
+              {user ? (
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 py-3 text-sm font-semibold uppercase tracking-wide text-maroon"
+                >
+                  My Account
+                </Link>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="flex items-center gap-2 py-3 text-sm font-semibold uppercase tracking-wide text-maroon"
+                >
+                  Sign In
+                </Link>
+              )}
+            </li>
           </ul>
         </div>
       )}

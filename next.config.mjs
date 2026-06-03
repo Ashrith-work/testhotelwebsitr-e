@@ -8,6 +8,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "source.unsplash.com" },
+      // Google account profile pictures (Sign in with Google).
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
 };

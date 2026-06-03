@@ -5,6 +5,7 @@ import TopStrip from "@/components/TopStrip";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { site } from "@/data/site";
+import { auth } from "@/auth";
 
 // Elegant serif for the hotel name + titles; clean sans-serif for body/nav.
 const playfair = Playfair_Display({
@@ -34,16 +35,21 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Read the session server-side and hand the user to the (client) Navbar so it
+  // can render the Sign In button or the profile dropdown without a client-side
+  // session fetch.
+  const session = await auth();
+
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} scroll-smooth`}>
       <body>
         <TopStrip />
-        <Navbar />
+        <Navbar user={session?.user ?? null} />
         <main>{children}</main>
         <Footer />
 

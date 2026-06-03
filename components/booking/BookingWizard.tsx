@@ -66,14 +66,20 @@ function formatDateLong(iso: string): string {
   });
 }
 
+type DefaultGuest = { fullName: string; email: string; phone: string };
+
 export default function BookingWizard({
   rooms,
   addOns,
   preselectSlug,
+  defaultGuest = null,
+  isSignedIn = false,
 }: {
   rooms: RoomView[];
   addOns: AddOnView[];
   preselectSlug?: string;
+  defaultGuest?: DefaultGuest | null;
+  isSignedIn?: boolean;
 }) {
   const [step, setStep] = useState(0);
 
@@ -88,9 +94,10 @@ export default function BookingWizard({
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  // Pre-fill guest details from the signed-in user's profile (if any).
+  const [fullName, setFullName] = useState(defaultGuest?.fullName ?? "");
+  const [email, setEmail] = useState(defaultGuest?.email ?? "");
+  const [phone, setPhone] = useState(defaultGuest?.phone ?? "");
   const [specialRequests, setSpecialRequests] = useState("");
 
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
@@ -234,7 +241,21 @@ export default function BookingWizard({
     <div className="mx-auto max-w-4xl">
       <Stepper current={step} />
 
-      <div className="mt-8 rounded-sm bg-white p-6 shadow-sm ring-1 ring-charcoal/5 sm:p-8">
+      {/* Subtle prompt for guests — sign-in is optional, not required. */}
+      {!isSignedIn && step < 4 && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-sm bg-cream-dark/50 px-4 py-2.5 text-center text-sm text-charcoal-light">
+          <span>Booking as a guest.</span>
+          <Link
+            href="/signin?callbackUrl=/book"
+            className="font-semibold text-maroon hover:underline"
+          >
+            Sign in with Google
+          </Link>
+          <span>to track your bookings.</span>
+        </div>
+      )}
+
+      <div className="mt-6 rounded-sm bg-white p-6 shadow-sm ring-1 ring-charcoal/5 sm:p-8">
         {error && (
           <div className="mb-6 rounded-sm border border-maroon/30 bg-maroon/5 px-4 py-3 text-sm text-maroon">
             {error}

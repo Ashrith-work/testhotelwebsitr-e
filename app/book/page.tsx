@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { getActiveAddOns, getActiveRooms } from "@/lib/rooms";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Book Online",
@@ -17,10 +18,20 @@ export default async function BookPage({
 }: {
   searchParams: { room?: string };
 }) {
-  const [rooms, addOns] = await Promise.all([
+  const [rooms, addOns, session] = await Promise.all([
     getActiveRooms(),
     getActiveAddOns(),
+    auth(),
   ]);
+
+  // Signed-in guests get their details pre-filled; guests can still book.
+  const defaultGuest = session?.user
+    ? {
+        fullName: session.user.name ?? "",
+        email: session.user.email ?? "",
+        phone: session.user.phone ?? "",
+      }
+    : null;
 
   return (
     <>
@@ -34,6 +45,8 @@ export default async function BookPage({
           rooms={rooms}
           addOns={addOns}
           preselectSlug={searchParams.room}
+          defaultGuest={defaultGuest}
+          isSignedIn={!!session?.user}
         />
       </section>
     </>
