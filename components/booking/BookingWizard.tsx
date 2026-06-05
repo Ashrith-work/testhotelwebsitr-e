@@ -627,6 +627,8 @@ export default function BookingWizard({
             data-conversion="booking"
             data-conversion-type="booking-confirmed"
             data-conversion-page="book"
+            // HotelTrack reads the booking value from data-ht-value.
+            data-ht-value={result.breakdown.totalAmount}
             className="text-center"
           >
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-forest/10 text-forest">
