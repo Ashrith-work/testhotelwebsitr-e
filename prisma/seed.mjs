@@ -1,7 +1,7 @@
 // Seeds the Room and AddOn tables. Idempotent — re-runnable via `npm run db:seed`
 // (or `npx prisma db seed`). Rooms are upserted on their unique `slug`.
 //
-// NOTE: Room prices below are TEST values (₹10–₹25). Update `basePrice` to the
+// NOTE: Room prices below are TEST values (₹1–₹3). Update `basePrice` to the
 // real tariffs (in PAISE) once the payment flow is verified. Add-on prices are
 // likewise small test values — replace with real pricing.
 import { PrismaClient } from "@prisma/client";
@@ -17,7 +17,7 @@ const rooms = [
     name: "Deluxe Cottage",
     description:
       "A cosy plantation cottage with private sit-out overlooking the cardamom slopes — warm interiors and uninterrupted hill views.",
-    basePrice: inr(10), // TEST price — was ₹7,500
+    basePrice: inr(1), // TEST price — was ₹7,500
     maxAdults: 2,
     maxChildren: 0,
     imageUrl:
@@ -30,7 +30,7 @@ const rooms = [
     name: "Premium Suite",
     description:
       "A spacious suite with a separate lounge, large windows framing the boulders and tea gardens, and premium plantation-style furnishing.",
-    basePrice: inr(15), // TEST price — was ₹11,500
+    basePrice: inr(2), // TEST price — was ₹11,500
     maxAdults: 2,
     maxChildren: 1,
     imageUrl:
@@ -43,7 +43,7 @@ const rooms = [
     name: "Family Villa",
     description:
       "A two-bedroom villa ideal for families, with a shared living space and a generous verandah to soak in the open Munnar sky.",
-    basePrice: inr(20), // TEST price — was ₹15,500
+    basePrice: inr(3), // TEST price — was ₹15,500
     maxAdults: 4,
     maxChildren: 2,
     imageUrl:
@@ -56,7 +56,7 @@ const rooms = [
     name: "Plantation Suite",
     description:
       "Our signature suite — the most private retreat on the property, surrounded by spice plantations with a luxurious soaking experience.",
-    basePrice: inr(25), // TEST price — was ₹18,500
+    basePrice: inr(3), // TEST price — was ₹18,500
     maxAdults: 2,
     maxChildren: 0,
     imageUrl:
