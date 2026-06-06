@@ -4,7 +4,7 @@
   "private": true,
   "description": "Neelakurunji Luxury Plantation Bungalow — official website (also the HotelTrack tracking-snippet test environment)",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3001",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
