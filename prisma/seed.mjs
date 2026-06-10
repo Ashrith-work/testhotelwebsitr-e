@@ -1,9 +1,9 @@
 // Seeds the Room and AddOn tables. Idempotent — re-runnable via `npm run db:seed`
 // (or `npx prisma db seed`). Rooms are upserted on their unique `slug`.
 //
-// NOTE: Room + add-on prices below are the REAL tariffs (stored in PAISE).
-// They were temporarily lowered to ₹1–₹3 for UPI payment testing and have now
-// been restored.
+// NOTE: Room prices below are TEST values (₹1–₹3). Update `basePrice` to the
+// real tariffs (in PAISE) once the payment flow is verified. Add-on prices are
+// likewise small test values — replace with real pricing.
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -17,7 +17,7 @@ const rooms = [
     name: "Deluxe Cottage",
     description:
       "A cosy plantation cottage with private sit-out overlooking the cardamom slopes — warm interiors and uninterrupted hill views.",
-    basePrice: inr(7500),
+    basePrice: inr(1), // TEST price — was ₹7,500
     maxAdults: 2,
     maxChildren: 0,
     imageUrl:
@@ -30,7 +30,7 @@ const rooms = [
     name: "Premium Suite",
     description:
       "A spacious suite with a separate lounge, large windows framing the boulders and tea gardens, and premium plantation-style furnishing.",
-    basePrice: inr(11500),
+    basePrice: inr(2), // TEST price — was ₹11,500
     maxAdults: 2,
     maxChildren: 1,
     imageUrl:
@@ -43,7 +43,7 @@ const rooms = [
     name: "Family Villa",
     description:
       "A two-bedroom villa ideal for families, with a shared living space and a generous verandah to soak in the open Munnar sky.",
-    basePrice: inr(15500),
+    basePrice: inr(3), // TEST price — was ₹15,500
     maxAdults: 4,
     maxChildren: 2,
     imageUrl:
@@ -56,7 +56,7 @@ const rooms = [
     name: "Plantation Suite",
     description:
       "Our signature suite — the most private retreat on the property, surrounded by spice plantations with a luxurious soaking experience.",
-    basePrice: inr(18500),
+    basePrice: inr(3), // TEST price — was ₹18,500
     maxAdults: 2,
     maxChildren: 0,
     imageUrl:
@@ -71,7 +71,7 @@ const addOns = [
     name: "Ayurvedic Spa Package",
     description:
       "A rejuvenating traditional Kerala Ayurvedic massage and therapy session, per guest.",
-    price: inr(2500),
+    price: inr(5), // TEST price
     pricingType: "per_person",
     imageUrl:
       "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80",
@@ -80,7 +80,7 @@ const addOns = [
     name: "Candlelight Dinner",
     description:
       "A private candlelight dinner for the room, set amidst the plantation under the Munnar sky.",
-    price: inr(3500),
+    price: inr(8), // TEST price
     pricingType: "per_booking",
     imageUrl:
       "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
@@ -89,7 +89,7 @@ const addOns = [
     name: "Plantation Jeep Safari",
     description:
       "A guided off-road jeep safari through the surrounding tea and cardamom estates, per guest.",
-    price: inr(1800),
+    price: inr(6), // TEST price
     pricingType: "per_person",
     imageUrl:
       "https://images.unsplash.com/photo-1533873984035-25970ab07461?auto=format&fit=crop&w=1200&q=80",
@@ -98,7 +98,7 @@ const addOns = [
     name: "Airport Pickup & Drop",
     description:
       "Comfortable private transfer between Cochin International Airport and the property.",
-    price: inr(4500),
+    price: inr(10), // TEST price
     pricingType: "per_booking",
     imageUrl:
       "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80",
