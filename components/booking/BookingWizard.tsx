@@ -14,15 +14,10 @@ import {
   type RoomView,
 } from "@/lib/pricing";
 
-// The six steps of the direct-booking flow.
-const STEPS = [
-  "Room",
-  "Dates",
-  "Guest",
-  "Review",
-  "Payment",
-  "Confirmation",
-] as const;
+// The five steps of the direct-booking flow. Confirmation is its own page
+// (/thank-you) so HotelTrack sees a real URL navigation to fire its conversion
+// detection on — see confirmPayment() below.
+const STEPS = ["Room", "Dates", "Guest", "Review", "Payment"] as const;
 
 type CreateResult = {
   bookingReference: string;
@@ -107,12 +102,6 @@ export default function BookingWizard({
   const [result, setResult] = useState<CreateResult | null>(null);
 
   const [confirming, setConfirming] = useState(false);
-  const [confirmInfo, setConfirmInfo] = useState<{
-    status: string;
-    invoiceUrl: string;
-    emailSent: boolean;
-    emailSkipped: string | null;
-  } | null>(null);
 
   const room = useMemo(
     () => rooms.find((r) => r.slug === roomSlug) ?? null,
@@ -209,7 +198,10 @@ export default function BookingWizard({
   }
 
   // Trust the guest's "I've paid" tap: confirm the booking + email the invoice,
-  // then advance to the confirmation step.
+  // then hand off to the dedicated /thank-you confirmation page. We do a real
+  // (hard) navigation rather than an in-place step so the URL becomes
+  // /thank-you and the HotelTrack snippet re-runs there to record the booking
+  // — carrying the booking details (and the revenue, in RUPEES) as URL params.
   async function confirmPayment() {
     if (!result) return;
     setConfirming(true);
@@ -223,16 +215,29 @@ export default function BookingWizard({
       if (!res.ok) {
         throw new Error(data?.error || "Could not confirm your booking.");
       }
-      setConfirmInfo({
-        status: data.status,
-        invoiceUrl: data.invoiceUrl,
-        emailSent: !!data.emailSent,
-        emailSkipped: data.emailSkipped ?? null,
-      });
-      setStep(5); // Confirmation
+
+      // Internal amounts are in paise — convert to rupees for the snippet, which
+      // expects a plain number (e.g. 9000 for ₹9,000), not paise and not a
+      // formatted string.
+      const amountRupees = result.breakdown.totalAmount / 100;
+
+      const params = [
+        `bookingId=${encodeURIComponent(result.bookingReference)}`,
+        `amount=${encodeURIComponent(amountRupees)}`,
+        `guestName=${encodeURIComponent(fullName)}`,
+        `nights=${encodeURIComponent(result.breakdown.numberOfNights)}`,
+        `checkIn=${encodeURIComponent(checkIn)}`,
+        `checkOut=${encodeURIComponent(checkOut)}`,
+      ];
+      if (data.invoiceUrl) {
+        params.push(`invoice=${encodeURIComponent(data.invoiceUrl)}`);
+      }
+
+      // Hard navigation (keeps the button in its "Confirming…" state until the
+      // new page loads, and guarantees the snippet runs on /thank-you).
+      window.location.assign(`/thank-you?${params.join("&")}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
-    } finally {
       setConfirming(false);
     }
   }
@@ -617,104 +622,6 @@ export default function BookingWizard({
             </div>
           </div>
         )}
-
-        {/* STEP 5 — CONFIRMATION */}
-        {step === 5 && result && (
-          // Keep these stable markers so HotelTrack detects the booking
-          // conversion (same shape as /thank-you).
-          <div
-            id="booking-confirmation"
-            data-conversion="booking"
-            data-conversion-type="booking-confirmed"
-            data-conversion-page="book"
-            // HotelTrack reads the booking value from data-ht-value.
-            data-ht-value={result.breakdown.totalAmount}
-            className="text-center"
-          >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-forest/10 text-forest">
-              <svg
-                viewBox="0 0 24 24"
-                width="32"
-                height="32"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m5 13 4 4 10-10" />
-              </svg>
-            </div>
-            <h2 className="mt-6 font-serif text-3xl text-charcoal">
-              Booking Confirmed
-            </h2>
-            <span className="mx-auto mt-3 block h-[3px] w-16 rounded bg-gold" />
-            <p className="mt-6 leading-relaxed text-charcoal-light">
-              Thank you, <strong className="text-charcoal">{fullName}</strong>.
-              Your payment is confirmed and your booking reference is{" "}
-              <strong className="text-charcoal">{result.bookingReference}</strong>
-              .{" "}
-              {confirmInfo?.emailSent ? (
-                <>
-                  An invoice has been emailed to{" "}
-                  <strong className="text-charcoal">{email}</strong>.
-                </>
-              ) : (
-                <>
-                  Your invoice is ready below
-                  {confirmInfo?.emailSkipped
-                    ? " (email delivery isn't configured yet)"
-                    : ""}
-                  .
-                </>
-              )}
-            </p>
-
-            <dl className="mx-auto mt-8 max-w-md space-y-2 rounded-sm bg-cream/40 p-5 text-left text-sm">
-              <SummaryLine label="Room" value={result.breakdown.roomName} />
-              <SummaryLine
-                label="Stay"
-                value={`${formatDateLong(checkIn)} → ${formatDateLong(checkOut)} (${
-                  result.breakdown.numberOfNights
-                } night${result.breakdown.numberOfNights > 1 ? "s" : ""})`}
-              />
-              <SummaryLine
-                label="Subtotal"
-                value={formatINR(result.breakdown.subtotal)}
-              />
-              <SummaryLine
-                label={`GST (${result.breakdown.gstRate}%)`}
-                value={formatINR(result.breakdown.gstAmount)}
-              />
-              <div className="border-t border-charcoal/10 pt-2">
-                <SummaryLine
-                  label="Total Paid"
-                  value={formatINR(result.breakdown.totalAmount)}
-                  emphasise
-                />
-              </div>
-            </dl>
-
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              {confirmInfo?.invoiceUrl && (
-                <a
-                  href={confirmInfo.invoiceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-gold"
-                >
-                  View / Download Invoice
-                </a>
-              )}
-              <Link href="/" className="btn-forest">
-                Back to Home
-              </Link>
-              <Link href="/rooms" className="btn-outline">
-                View Rooms
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -930,25 +837,3 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SummaryLine({
-  label,
-  value,
-  emphasise,
-}: {
-  label: string;
-  value: string;
-  emphasise?: boolean;
-}) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-charcoal-light">{label}</span>
-      <span
-        className={
-          emphasise ? "font-semibold text-maroon" : "font-medium text-charcoal"
-        }
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
