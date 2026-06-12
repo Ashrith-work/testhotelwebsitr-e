@@ -4,6 +4,7 @@ import "./globals.css";
 import TopStrip from "@/components/TopStrip";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BodyWithStage from "@/components/BodyWithStage";
 import { site } from "@/data/site";
 import { auth } from "@/auth";
 
@@ -47,7 +48,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} scroll-smooth`}>
-      <body>
+      <BodyWithStage>
         <TopStrip />
         <Navbar user={session?.user ?? null} />
         <main>{children}</main>
@@ -64,7 +65,7 @@ export default async function RootLayout({
             async
           />
         )}
-      </body>
+      </BodyWithStage>
     </html>
   );
 }
